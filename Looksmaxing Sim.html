@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Looksmaxing Sim</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#1d1230;--card:#2d1f47;--ink:#fff4fb;--mut:#b9a8d6;--pink:#ff5c8a;--mint:#4df0c0;--yel:#ffd84d;--line:#43336a}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;--bg:#f3ecff;--card:#fff;--ink:#2a1747;--mut:#6f5d91;--line:#ddd0f5}}
+:root[data-theme="dark"]{color-scheme:dark}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Fredoka,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:480px;margin:0 auto;padding:12px 12px 28px}
+.top{display:flex;gap:6px}
+.top div{flex:1;background:var(--card);border-radius:14px;padding:6px 4px;text-align:center;font-weight:600;font-size:15px}
+.top small{display:block;color:var(--mut);font-weight:400;font-size:11px}
+.stage{display:flex;gap:10px;align-items:center;margin:10px 0}
+.stage svg{width:46%;max-width:210px;border-radius:22px;flex:none;box-shadow:0 8px 24px rgba(255,92,138,.3)}
+.right{flex:1;min-width:0}
+.score{font-size:46px;font-weight:700;line-height:1;color:var(--mint)}
+.rank{display:inline-block;background:var(--pink);color:#fff;border-radius:99px;padding:2px 12px;font-weight:600;font-size:14px;margin:4px 0 8px}
+.bar{display:flex;align-items:center;gap:6px;font-size:12px;margin:3px 0}
+.bar span:first-child{width:62px;color:var(--mut)}
+.bar i{flex:1;height:8px;background:var(--line);border-radius:9px;overflow:hidden}
+.bar b{display:block;height:100%;background:var(--mint);border-radius:9px;transition:width .4s}
+.toast{background:var(--card);border-left:5px solid var(--yel);border-radius:12px;padding:9px 12px;font-size:14px;min-height:52px}
+.toast em{font-style:normal;color:var(--yel);font-weight:600}
+.tabs{display:flex;gap:6px;margin:12px 0 8px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:none;border:0;background:var(--card);color:var(--mut);font:600 14px Fredoka,system-ui,sans-serif;padding:9px 14px;border-radius:99px}
+.tabs button.on{background:var(--pink);color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.act{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:10px;text-align:left;font-family:inherit;min-height:112px;display:flex;flex-direction:column;gap:3px}
+.act:active:not(:disabled){transform:scale(.97);border-color:var(--mint)}
+.act:disabled{opacity:.38}
+.act .ic{font-size:26px;line-height:1}
+.act .nm{font-weight:600;font-size:15px}
+.act .ds{font-size:12px;color:var(--mut);flex:1}
+.act .cs{font-size:12px;color:var(--yel);font-weight:600}
+.act.bad{border-style:dashed;border-color:var(--pink)}
+.end{width:100%;margin-top:14px;border:0;border-radius:18px;padding:16px;font:700 18px Fredoka,system-ui,sans-serif;background:linear-gradient(90deg,var(--pink),#ff9a5c);color:#fff}
+.end:active{transform:scale(.98)}
+.over{position:fixed;inset:0;background:rgba(15,8,28,.88);display:flex;align-items:center;justify-content:center;padding:20px;z-index:5}
+.over div{background:var(--card);border-radius:24px;padding:24px;max-width:400px;text-align:center}
+.over h2{margin:0 0 4px;font-size:26px}
+.over p{color:var(--mut);margin:8px 0}
+.over .score{font-size:64px}
+.toast{animation:pop .3s}.toast.warn{border-left-color:var(--pink);background:#4a1630;color:#fff}
+.ct{text-align:center;margin:6px 0}.pv svg{display:block;width:60%;max-width:230px;margin:0 auto;border-radius:22px;box-shadow:0 8px 24px rgba(255,92,138,.3)}.sec{margin:14px 0 0}.sec b{font-size:14px;color:var(--mut)}.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--line);padding:0}.sw.on{border-color:var(--pink);transform:scale(1.18)}
+.pl{border:2px solid var(--line);background:var(--card);color:var(--ink);font:600 14px Fredoka,system-ui,sans-serif;padding:8px 12px;border-radius:99px}.pl.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.lad{display:flex;gap:3px;margin:0 0 10px}.lad span{flex:1;text-align:center;font-size:9px;padding:5px 0;border-radius:8px;background:var(--line);color:var(--mut);font-weight:600;overflow:hidden;white-space:nowrap}.lad .ok{background:#2f6f63;color:#fff}.lad .now{background:var(--pink);color:#fff;transform:scale(1.12)}
+.warnb{grid-column:1/-1;border:2px dashed var(--pink);border-radius:14px;padding:10px;font-size:13px;color:var(--pink);font-weight:600}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+.tw{transform-box:fill-box;transform-origin:center;animation:tw 2s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+@keyframes tw{50%{transform:scale(.4);opacity:.5}}
+@keyframes pop{from{transform:scale(.96);opacity:.4}}
+.fx{font-size:34px;text-anchor:middle;dominant-baseline:central;transform-box:fill-box;transform-origin:center;opacity:0;animation-duration:1.6s;animation-fill-mode:forwards}
+.pt{font-size:16px;text-anchor:middle;opacity:0;transform-box:fill-box;transform-origin:center;animation:rise 1.6s forwards}
+.flash{opacity:0;pointer-events:none;animation:fl .8s}
+.a-scrub{animation-name:scrub}.a-drop{animation-name:drop}.a-pop{animation-name:xpop}.a-bounce{animation-name:bnc}.a-spin{animation-name:spn}.a-snip{animation-name:snp}
+svg.shake{animation:shk .5s}
+@keyframes scrub{0%{opacity:0;transform:translateX(-40px)}10%{opacity:1}20%{transform:translateX(40px)}40%{transform:translateX(-40px)}60%{transform:translateX(40px)}80%{opacity:1;transform:translateX(-30px)}100%{opacity:0}}
+@keyframes drop{0%{opacity:0;transform:translateY(-60px)}30%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0;transform:translateY(10px) scale(1.4)}}
+@keyframes xpop{0%{opacity:0;transform:scale(.2)}30%{opacity:1;transform:scale(1.5)}70%{opacity:1}100%{opacity:0;transform:scale(1.8)}}
+@keyframes bnc{0%{opacity:0;transform:translateY(40px)}20%{opacity:1}30%,60%{transform:translateY(-14px)}45%,75%{transform:translateY(10px)}100%{opacity:0}}
+@keyframes spn{0%{opacity:0;transform:rotate(0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:rotate(540deg) scale(1.4)}}
+@keyframes snp{0%{opacity:0}20%{opacity:1}30%,50%,70%{transform:rotate(25deg)}40%,60%,80%{transform:rotate(-25deg)}100%{opacity:0}}
+@keyframes rise{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-70px)}}
+@keyframes fl{0%{opacity:.4}100%{opacity:0}}
+@keyframes shk{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const $=id=>document.getElementById(id);
+const NAMES={skin:'Pele',jaw:'Mandíbula',hair:'Cabelo',body:'Corpo',aura:'Aura'};
+const W={skin:.25,jaw:.2,hair:.2,body:.15,aura:.2};
+const DAYS=14;
+let S;
+function init(){
+  const ch=S&&S.ch||{tone:2,style:0,color:1,eyes:0,nose:1};
+  S={setup:1,ch,day:1,en:6,mo:100,fol:50,st:{skin:28,jaw:22,hair:28,body:22,aura:22},done:{},mew:0,sun:false,streak:0,pen:0,whiten:0,tab:0,over:false,
+  msg:'Você tem 14 dias para o glow up. Gaste a energia com cuidado e depois poste no TikTok.'};
+  render();
+}
+function add(k,v){S.st[k]=Math.max(0,Math.min(100,S.st[k]+v))}
+function score(){return Math.round(Object.keys(W).reduce((a,k)=>a+S.st[k]*W[k],0))}
+const TIERS=[[30,'Sub-3'],[40,'Sub-5'],[50,'LTN'],[60,'MTN'],[70,'HTN'],[80,'Chadlite'],[90,'Chad'],[101,'True Adam']];
+function tier(s){return TIERS.findIndex(t=>s<t[0])}
+function rank(s){return TIERS[tier(s)][1]}
+function rankOld(s){return s<40?'NPC 🧍':s<55?'Normie 🙂':s<70?'Glow up em andamento ✨':s<85?'Chad de bairro 😎':'Gigachad 👑'}
+function R(n){return Math.random()<n}
+
+const A=[
+{id:'skin',c:0,i:'🧴',n:'Skincare completo',e:1,m:5,d:'Limpar e hidratar. Constância vale mais que produto.',once:1,run(){const b=S.streak>=3;add('skin',b?10:6);return b?'Streak de pele ativo! 🔥 Bônus extra.':'A pele agradece.'}},
+{id:'sun',c:0,i:'☀️',n:'Protetor solar',e:1,m:8,d:'Evita espinhas e manchas hoje.',once:1,run(){S.sun=true;add('skin',3);return 'Escudo solar ligado.'}},
+{id:'mew',c:0,i:'👅',n:'Mewing',e:1,m:0,d:'Língua no céu da boca. Rende devagar e cansa.',once:1,run(){const g=Math.max(.5,3-S.mew*.3);S.mew++;add('jaw',g);return S.mew>8?'O mewing já rendeu o que podia. Varie as ações.':'Postura de língua em dia.'}},
+{id:'ice',c:0,i:'🧊',n:'Gelo no rosto',e:1,m:0,d:'Desincha e dá brilho.',once:1,run(){add('skin',2);add('aura',1);return 'Rosto desinchado e fresco.'}},
+{id:'teeth',c:0,i:'😁',n:'Clareamento dental',e:1,m:25,d:'Sorriso mais brilhante (máx. 2 vezes).',ok(){return S.whiten<2},run(){S.whiten++;add('aura',6);return 'Sorriso de comercial.'}},
+{id:'brow',c:0,i:'🪒',n:'Design de sobrancelha',e:1,m:15,d:'Moldura do olhar.',once:1,run(){add('aura',3);add('hair',2);return 'Olhar mais marcante.'}},
+
+{id:'cut',c:1,i:'💈',n:'Corte no barbeiro',e:1,m:40,d:'O maior salto de cabelo do jogo.',once:1,run(){add('hair',16);add('aura',2);return 'Corte novo, cabeça nova.'}},
+{id:'pomade',c:1,i:'🪮',n:'Texturizar',e:1,m:10,d:'Pomada ou pó para dar volume.',once:1,run(){add('hair',6);return 'Cabelo com textura.'}},
+{id:'shampoo',c:1,i:'🚿',n:'Lavar o cabelo',e:1,m:5,d:'Shampoo anticaspa. Básico que funciona.',once:1,run(){add('hair',4);add('skin',1);return 'Cabelo limpo.'}},
+
+{id:'gym',c:2,i:'🏋️',n:'Treino pesado',e:2,m:0,d:'Ombro largo e postura de quem treina.',once:1,run(){add('body',7);add('aura',2);return 'Treino pago.'}},
+{id:'posture',c:2,i:'🧍',n:'Postura (wall angels)',e:1,m:0,d:'Costas retas, pescoço alinhado.',once:1,run(){add('body',3);add('jaw',1);return 'Coluna agradece.'}},
+{id:'water',c:2,i:'💧',n:'Beber 3 litros',e:1,m:0,d:'Hidratação ajuda pele e corpo.',once:1,run(){add('skin',2);add('body',1);return 'Hidratado.'}},
+{id:'walk',c:2,i:'🚶',n:'Caminhada ao sol',e:1,m:0,d:'Ar livre, humor melhor.',once:1,run(){add('aura',3);add('body',1);return 'Cabeça leve.'}},
+
+{id:'aura',c:3,i:'🪞',n:'Aura farming',e:1,m:0,d:'Treinar presença e olhar no espelho.',once:1,run(){add('aura',5);return 'Presença +1000 (sem exagero).'}},
+{id:'smile',c:3,i:'🙂',n:'Treinar sorriso',e:1,m:0,d:'Sorriso natural, sem forçar.',once:1,run(){add('aura',3);add('jaw',1);return 'Sorriso mais solto.'}},
+{id:'filter',c:3,i:'🎭',n:'Filtro de beleza',e:0,m:0,d:'Seguidores na hora, mas a autoestima paga.',once:1,run(){S.fol+=Math.round(10+score()/2);add('aura',-3);return 'Subiu seguidor, caiu confiança.'}},
+{id:'shop',c:3,i:'🛍️',n:'Produto milagroso',e:0,m:30,d:'Achado do TikTok Shop. Aposta!',run(){if(R(.4)){add('skin',9);return 'Funcionou! Deu sorte.'}if(R(.6)){return 'Não fez nada. Dinheiro no lixo.'}add('skin',-8);return 'Reação alérgica. Cara vermelha.'}},
+
+{id:'bone',c:4,i:'🔨',n:'Bonesmashing',e:1,m:0,d:'Martelar o rosto. Só dá errado.',once:1,run(){add('jaw',-8);add('aura',-5);add('skin',-3);S.bruise=3;return 'Péssima ideia. No mundo real isso machuca de verdade. Não faça.'}},
+{id:'diet',c:4,i:'🥬',n:'Dieta de 500 kcal',e:0,m:0,d:'Cortar tudo para “definir”.',once:1,run(){add('body',-6);S.pen+=2;return 'Fraqueza total. Amanhã você acorda sem energia.'}},
+{id:'night',c:4,i:'🌙',n:'Virar a noite no TikTok',e:0,m:0,d:'Estudar 40 vídeos de looksmaxing.',once:1,run(){add('skin',-4);S.pen+=2;add('aura',2);return 'Aprendeu 3 termos novos e ganhou olheira.'}},
+{id:'gum',c:0,i:'🍬',n:'Chiclete duro',e:1,m:3,d:'Mastigação para treinar a mandíbula.',once:1,run(){add('jaw',2);return 'Mandíbula trabalhando (sem exagero).'}},
+{id:'ret',c:0,i:'🌙',n:'Retinol à noite',e:1,m:20,d:'Renova a pele. Sem protetor, irrita.',once:1,run(){if(S.sun){add('skin',8);return 'Pele renovada e protegida.'}add('skin',-1);return 'Sem protetor solar a pele irritou. Use os dois juntos.'}},
+{id:'lip',c:0,i:'💋',n:'Hidratar os lábios',e:1,m:3,d:'Detalhe pequeno, efeito visível.',once:1,run(){add('aura',2);add('skin',1);return 'Lábios hidratados.'}},
+{id:'beard',c:1,i:'🧔',n:'Alinhar a barba',e:1,m:12,d:'Define o contorno do rosto (uma vez).',ok(){return !S.beard},run(){S.beard=true;add('jaw',4);add('aura',3);return 'Contorno marcado.'}},
+{id:'massage',c:1,i:'💆',n:'Massagem no couro',e:1,m:0,d:'Estimula o couro cabeludo.',once:1,run(){add('hair',3);return 'Cabelo mais forte.'}},
+{id:'neck',c:2,i:'🦒',n:'Treino de pescoço',e:1,m:0,d:'Pescoço forte, rosto mais marcante.',once:1,run(){add('body',3);add('jaw',2);return 'Pescoço mais firme.'}},
+{id:'prot',c:2,i:'🥚',n:'Comer proteína',e:1,m:12,d:'Ovo, frango, iogurte.',once:1,run(){add('body',4);add('skin',1);return 'Músculo agradece.'}},
+{id:'sleep',c:2,i:'😴',n:'Sono de beleza',e:1,m:0,d:'Dormir cedo reduz o cansaço de amanhã.',once:1,run(){add('skin',3);add('aura',2);S.pen=Math.max(0,S.pen-2);return 'Descansado e com cara boa.'}},
+{id:'fit',c:3,i:'👔',n:'Fit check',e:1,m:35,d:'Roupa que combina muda tudo (uma vez).',ok(){return !S.fit},run(){S.fit=true;add('aura',7);add('body',1);return 'Fit aprovado.'}},
+{id:'perf',c:3,i:'🌸',n:'Perfume',e:1,m:20,d:'Cheiro bom é presença.',once:1,run(){add('aura',3);return 'Deixou rastro de aura.'}},
+{id:'grwm',c:3,i:'🎬',n:'Vídeo GRWM',e:1,m:0,d:'Rotina real atrai seguidor de verdade.',once:1,run(){const g=Math.round(15+score()/1.5);S.fol+=g;add('aura',1);return 'O vídeo de rotina deu certo: +'+g+' seguidores.'}},
+{id:'breath',c:3,i:'🧘',n:'Respirar fundo',e:1,m:0,d:'Calma gera confiança.',once:1,run(){add('aura',2);S.pen=Math.max(0,S.pen-1);return 'Mente tranquila.'}},
+{id:'lemon',c:4,i:'🍋',n:'Limão no rosto',e:0,m:0,d:'“Clareia a pele”, diz o vídeo.',once:1,run(){add('skin',-8);return 'Queimadura e mancha. Limão irrita e piora a pele.'}},
+{id:'scrub',c:4,i:'🧽',n:'Esfoliar 10 vezes',e:0,m:0,d:'Quanto mais, melhor? Não.',once:1,run(){add('skin',-9);add('aura',-2);return 'Barreira da pele destruída. Menos é mais.'}},
+{id:'bleach',c:4,i:'🧪',n:'Descolorir em casa',e:1,m:15,d:'Loiro de tutorial feito sozinho.',ok(){return !S.bleach},run(){S.bleach=true;add('hair',-12);return 'Cabelo amarelo e quebradiço. Descoloração pede profissional.'}},
+{id:'elastic',c:4,i:'🪢',n:'Faixa para o queixo',e:0,m:10,d:'Aparelho caseiro de “jawline”.',once:1,run(){add('jaw',-4);add('skin',-2);return 'Só dor e marca na pele. Não existe atalho assim.'}},
+{id:'cream',c:4,i:'🧴',n:'Creme que cresce queixo',e:0,m:40,d:'Promessa de TikTok Shop.',once:1,run(){add('aura',-2);return 'Era hidratante comum. Você perdeu R$40. Golpe clássico.'}},
+{id:'followers',c:4,i:'🤖',n:'Comprar seguidores',e:0,m:20,d:'Número alto, zero verdade.',once:1,run(){S.fol+=200;add('aura',-4);return 'Subiu o número, caiu a confiança. Seguidor falso não vira amigo.'}},
+{id:'surgery',c:4,i:'✈️',n:'Cirurgia barata no exterior',e:1,m:90,d:'Pacote promocional do TikTok.',once:1,run(){if(R(.7)){add('jaw',-6);add('skin',-6);S.pen+=3;S.bruise=3;return 'Deu muito errado: inchaço e dor. Cirurgia é com médico de verdade.'}add('jaw',3);S.pen+=1;return 'Teve sorte, mas foi aposta arriscada. Não vale.'}}
+];
+const TABS=['Rosto','Cabelo','Corpo','Mente','Cilada ⚠️'];
+
+function act(id){
+  if(S.over)return;
+  const a=A.find(x=>x.id==id);
+  if(S.en<a.e||S.mo<a.m||(a.once&&S.done[id])||(a.ok&&!a.ok()))return;
+  const before={...S.st},t0=tier(score());
+  S.en-=a.e;S.mo-=a.m;S.done[id]=1;
+  const t=a.run();
+  const dl=Object.keys(before).filter(k=>Math.round(S.st[k])!=Math.round(before[k])).map(k=>{const d=Math.round(S.st[k])-Math.round(before[k]);return NAMES[k]+' '+(d>0?'+':'')+d}).join(' · ');
+  S.warn=a.c==4;S.fx=id;S.fxNew=true;S.msg=(S.warn?t.split('. ')[0]:t)+(dl?' <em>'+dl+'</em>':'');
+  const t1=tier(score());if(t1!=t0)S.msg+=t1>t0?' <em>⬆️ Subiu para '+TIERS[t1][1]+'!</em>':' <em>⬇️ Caiu para '+TIERS[t1][1]+'</em>';
+  render();
+}
+const FX={skin:['🧼','scrub','🫧',110],sun:['🧴','drop','☀️',100],mew:['👅','xpop','⬆️',165],ice:['🧊','drop','❄️',110],teeth:['🪥','scrub','✨',164],brow:['🪒','scrub','✨',100],gum:['🍬','bnc','💥',162],ret:['🌙','spn','✨',100],lip:['💄','scrub','💋',164],
+cut:['✂️','snp','💨',66],pomade:['🪮','scrub','✨',66],shampoo:['🚿','drop','🫧',66],beard:['🪒','scrub','✨',165],massage:['💆','xpop','✨',66],
+gym:['🏋️','bnc','💦',210],posture:['⬆️','bnc','✨',150],water:['💧','drop','💧',110],walk:['🚶','scrub','☀️',215],neck:['🦒','bnc','💪',185],prot:['🥚','drop','💪',215],sleep:['😴','xpop','💤',90],
+aura:['🪞','xpop','✨',100],smile:['😁','xpop','✨',162],filter:['🎭','spn','✨',100],shop:['🛍️','bnc','❓',150],fit:['👔','drop','✨',215],perf:['🌸','xpop','🌸',150],grwm:['🎬','xpop','❤️',100],breath:['🧘','xpop','🌿',100],
+bone:['🔨','snp','💥',150],diet:['🥬','drop','💨',210],night:['📱','xpop','💤',100],lemon:['🍋','drop','💢',110],scrub:['🧽','scrub','💢',110],bleach:['🧪','drop','💨',66],elastic:['🪢','xpop','💢',165],cream:['🧴','drop','💸',150],followers:['🤖','xpop','💸',100],surgery:['✈️','spn','💥',100],post:['📱','xpop','❤️',100]};
+function fxSvg(){
+  const f=S.fxNew&&FX[S.fx];if(!f)return '';
+  const bad=S.warn,xs=[48,152,72,128,100,60];
+  return `<rect class="flash" width="200" height="240" fill="${bad?'#ff2d55':'#4df0c0'}"/>`+xs.map((x,i)=>`<text class="pt" x="${x}" y="${150+(i%2)*30}" style="animation-delay:${i*.12}s">${f[2]}</text>`).join('')+`<text class="fx a-${f[1]}" x="100" y="${f[3]}">${f[0]}</text>`+(bad?`<text class="fx a-xpop" style="animation-delay:.5s;font-size:54px" x="100" y="110">❌</text>`:'');
+}
+function tab(n){S.tab=n;S.fxNew=false;render()}
+
+function endDay(){
+  if(S.over)return;
+  const b={...S.st};
+  S.streak=S.done.skin?S.streak+1:0;
+  add('hair',-1);
+  let ev='';
+  if(!S.sun&&R(.35)){add('skin',-4);ev='O sol e a oleosidade trouxeram uma espinha. '}
+  else if(R(.25)){add('aura',3);ev='Um amigo elogiou seu visual. '}
+  else if(R(.2)){S.mo+=20;ev='Você vendeu um item antigo (+R$20). '}
+  let g=Math.round(score()*score()/25*(.8+Math.random()*.6));
+  if(R(.12)){g*=5;ev+='VIRALIZOU! 🚀 '}
+  S.fol+=g;
+  S.day++;
+  if(S.day>DAYS){S.over=true;render();return}
+  S.en=Math.max(2,6-S.pen);S.pen=0;S.mo+=15;S.done={};S.sun=false;
+  S.warn=false;S.fx='post';S.fxNew=true;if(S.bruise>0)S.bruise--;S.msg='Dia '+(S.day-1)+' postado: <em>+'+g+' seguidores</em>. '+ev+'Novo dia, 15 reais de mesada.';
+  render();
+}
+
+function sp(x,y,s){return `<path class="tw" d="M${x} ${y-s}L${x+s*.3} ${y-s*.3}L${x+s} ${y}L${x+s*.3} ${y+s*.3}L${x} ${y+s}L${x-s*.3} ${y+s*.3}L${x-s} ${y}L${x-s*.3} ${y-s*.3}Z" fill="#fff6a0"/>`}
+const TONES=['#ffe3cf','#f6cfa8','#e8b68a','#d39b6a','#b5784a','#8d5a36','#6b4023','#4a2c18'];
+const HAIRS=['#1c1411','#3b2a24','#7a4a24','#a8502a','#d9b45a','#c9c9cf'];
+const STYLES=['Curto','Ondulado','Cacheado','Black power','Tranças','Dreads','Raspado','Longo','Coque','Topete'];
+const EYES=['Amendoado','Redondo','Caído'],NOSES=['Fino','Médio','Largo'];
+const rn=n=>Math.floor(Math.random()*n);
+function pick(k,i){S.ch[k]=i;render()}
+function rnd(){S.ch={tone:rn(8),style:rn(10),color:rn(6),eyes:rn(3),nose:rn(3)};render()}
+function go(){S.setup=0;S.msg='Personagem criado! Você tem 14 dias para o glow up. Gaste a energia e depois poste no TikTok.';render()}
+function mix(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));const x=p(a),y=p(b);return '#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function setupUI(){
+  const sw=(k,arr)=>arr.map((c,i)=>`<button class="sw ${S.ch[k]==i?'on':''}" style="background:${c}" aria-label="${k} ${i+1}" onclick="pick('${k}',${i})"></button>`).join('');
+  const pl=(k,arr)=>arr.map((n,i)=>`<button class="pl ${S.ch[k]==i?'on':''}" onclick="pick('${k}',${i})">${n}</button>`).join('');
+  $('app').innerHTML=`<h2 class="ct">Crie seu personagem</h2><div class="pv">${face()}</div>
+  <div class="sec"><b>Tom de pele</b><div class="row">${sw('tone',TONES)}</div></div>
+  <div class="sec"><b>Cabelo</b><div class="row">${pl('style',STYLES)}</div></div>
+  <div class="sec"><b>Cor do cabelo</b><div class="row">${sw('color',HAIRS)}</div></div>
+  <div class="sec"><b>Olhos</b><div class="row">${pl('eyes',EYES)}</div></div>
+  <div class="sec"><b>Nariz</b><div class="row">${pl('nose',NOSES)}</div></div>
+  <button class="pl" style="width:100%;margin-top:14px" onclick="rnd()">🎲 Aleatório</button>
+  <button class="end" onclick="go()">Começar o glow up ▶</button>`;
+}
+function face(){
+  const ch=S.ch,P=S.setup,{skin,jaw,hair,body,aura}=P?{skin:62,jaw:55,hair:62,body:50,aura:62}:S.st,sc=P?55:score();
+  const sk=TONES[ch.tone],sd=mix(sk,'#2a1208',.22),lp=mix(sk,'#b5404f',.5);
+  const hc=S.bleach?'#e3c76a':HAIRS[ch.color],hl=mix(hc,'#ffffff',.3),st=ch.style,v=.75+hair/200;
+  const jw=36+jaw*.14,cw=14+jaw*.1,sw=46+body*.5,nw=24+body*.12;
+  const ln=(d,w,da)=>`<path d="${d}" stroke="${hc}" stroke-width="${w}" fill="none" stroke-linecap="round"${da?' stroke-dasharray="7 2.5"':''}/>`;
+  const cap=`<path d="M50 92C48 ${50-v*8} 152 ${50-v*8} 150 92Q140 72 100 68Q60 72 50 92Z" fill="url(#hr)"/>`;
+  const thin=`<path d="M52 90Q100 64 148 90Q100 76 52 90Z" fill="${hc}"/>`;
+  let hb='',hf=cap;
+  if(st==1){hb=`<ellipse cx="100" cy="76" rx="${56*v}" ry="${40*v}" fill="url(#hr)"/>`;hf=`<path d="M46 104C38 ${36-v*8} 162 ${36-v*8} 154 104Q148 78 112 68Q74 62 54 98Z" fill="url(#hr)"/>`}
+  else if(st==2){hb=[...Array(9)].map((_,i)=>{const a=Math.PI*(1+i/8);return `<circle cx="${100+Math.cos(a)*54}" cy="${86+Math.sin(a)*46}" r="${14*v}" fill="url(#hr)"/>`}).join('');hf=thin}
+  else if(st==3){hb=`<ellipse cx="100" cy="72" rx="${62*v+6}" ry="${54*v+4}" fill="url(#hr)"/>`;hf=thin}
+  else if(st==4){hb=ln('M40 84V200',8,1)+ln('M52 80V205',8,1)+ln('M148 80V205',8,1)+ln('M160 84V200',8,1);hf=cap+ln('M72 50L64 96',7,1)+ln('M88 44V84',7,1)+ln('M112 44V84',7,1)+ln('M128 50L136 96',7,1)}
+  else if(st==5){hb=ln('M38 86Q28 140 40 200',10)+ln('M50 84Q44 150 52 205',10)+ln('M150 84Q156 150 148 205',10)+ln('M162 86Q172 140 160 200',10);hf=cap+ln('M70 56Q60 74 62 96',9)+ln('M130 56Q140 74 138 96',9)}
+  else if(st==6)hf=`<path d="M54 84Q100 54 146 84Q100 70 54 84Z" fill="${hc}" opacity=".25"/>`;
+  else if(st==7){hb=`<path d="M44 90C38 28 162 28 156 90L166 205L34 205Z" fill="url(#hr)"/>`;hf=`<path d="M50 94C50 56 120 40 150 90Q132 64 96 66Q62 70 50 94Z" fill="url(#hr)"/>`}
+  else if(st==8)hb=`<circle cx="100" cy="30" r="${15*v}" fill="url(#hr)"/>`;
+  else if(st==9)hf=`<path d="M48 94C40 ${24-v*10} 156 ${14-v*10} 152 94Q142 68 100 62Q62 66 48 94Z" fill="url(#hr)"/>`;
+  const tufts=hair<45&&[0,1,9].includes(st)?`<path d="M60 70L52 46L72 62L80 38L94 60L108 36L118 60L136 42L140 68Z" fill="${hc}"/>`:'';
+  const blem=[[80,100],[120,112],[92,135],[115,140],[70,125],[128,95],[100,100],[85,150]];
+  let b='';for(let i=0;i<Math.min(8,Math.floor((100-skin)/12));i++)b+=`<circle cx="${blem[i][0]}" cy="${blem[i][1]}" r="3.2" fill="${mix(sk,'#9c2f2f',.6)}"/>`;
+  const E=[[8,8,5],[0,7,6.5],[-7,8,5.5]][ch.eyes];
+  const eye=(x,s)=>`<g class="eye"><g transform="rotate(${E[0]*s} ${x} 120)"><ellipse cx="${x}" cy="120" rx="${E[1]}" ry="${E[2]}" fill="#fff"/><circle cx="${x}" cy="120" r="${E[2]-1}" fill="#4a2e20"/><circle cx="${x}" cy="120" r="2.2" fill="#111"/><circle cx="${x+1.5}" cy="118.5" r="1.2" fill="#fff"/><path d="M${x-E[1]-1} 120Q${x} ${120-E[2]*2.2} ${x+E[1]+1} 120" stroke="#1a0f12" stroke-width="2.2" fill="none"/></g></g>`;
+  const nz=[4,6,9][ch.nose],br=2+aura*.02,my=157+aura*.15,bc=mix(hc,'#000000',.3);
+  const mouth=(aura>55||S.whiten)?`<path d="M84 164Q100 ${my} 116 164Q100 ${170+aura*.05} 84 164Z" fill="#fff" stroke="${lp}" stroke-width="3.5" stroke-linejoin="round"/>`:`<path d="M85 164Q100 ${my+4} 115 164Q100 171 85 164Z" fill="${lp}" stroke="${lp}" stroke-width="2" stroke-linejoin="round"/>`;
+  const bruise=S.bruise>0?`<ellipse cx="${100+jw-10}" cy="158" rx="10" ry="7" fill="#6a2c8a" opacity=".6"/><rect x="92" y="176" width="16" height="8" rx="2" fill="#f5f5f5" transform="rotate(-8 100 180)"/>`:'';
+  const beard=S.beard?`<path d="M${100-jw+2} 140L${100-jw+4} 156Q${100-jw+8} 186 ${100-cw} 190L${100+cw} 190Q${100+jw-8} 186 ${100+jw-4} 156L${100+jw-2} 140Q100 172 ${100-jw+2} 140Z" fill="${hc}" opacity=".45"/>`:'';
+  const bags=skin<40?`<ellipse cx="80" cy="130" rx="9" ry="3.5" fill="${mix(sk,'#4a2a5a',.4)}" opacity=".6"/><ellipse cx="120" cy="130" rx="9" ry="3.5" fill="${mix(sk,'#4a2a5a',.4)}" opacity=".6"/>`:'';
+  const stars=(aura>70?sp(24,40,9)+sp(172,64,7)+sp(34,100,5):'')+(skin>80?sp(76,142,5)+sp(124,142,5):'');
+  return `<svg viewBox="0 0 200 240" role="img" aria-label="Seu personagem" class="${S.fxNew&&S.warn?'shake':''}">
+<defs><radialGradient id="bg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="${sc>60?'#6d3fa8':'#4a3270'}"/><stop offset="1" stop-color="#241438"/></radialGradient>
+<linearGradient id="sk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${mix(sk,'#ffffff',.12)}"/><stop offset="1" stop-color="${sd}"/></linearGradient>
+<linearGradient id="hr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hl}"/><stop offset=".6" stop-color="${hc}"/></linearGradient></defs>
+<rect width="200" height="240" fill="url(#bg)"/>
+<circle cx="100" cy="110" r="${50+sc*.6}" fill="#ff5c8a" opacity="${.08+sc/500}"/>
+<circle cx="20" cy="20" r="1.5" fill="#fff" opacity=".5"/><circle cx="175" cy="30" r="1.5" fill="#fff" opacity=".5"/><circle cx="12" cy="150" r="1.5" fill="#fff" opacity=".4"/><circle cx="188" cy="140" r="1.5" fill="#fff" opacity=".4"/>
+<path d="M${100-sw} 240Q${100-sw} 206 ${100-30} 198L${100+30} 198Q${100+sw} 206 ${100+sw} 240Z" fill="${S.fit?'#4df0c0':'#ff5c8a'}"/>
+<rect x="${100-nw/2}" y="160" width="${nw}" height="42" fill="url(#sk)"/>
+<path d="M${100-nw/2-6} 198Q100 222 ${100+nw/2+6} 198Z" fill="url(#sk)"/>
+${S.fit?'<path d="M82 198L100 232L118 198" stroke="#1d1230" stroke-width="3" fill="none"/>':''}
+<ellipse cx="100" cy="188" rx="22" ry="8" fill="#000" opacity=".16"/>
+${hb}
+<ellipse cx="47" cy="118" rx="7" ry="11" fill="url(#sk)"/><ellipse cx="153" cy="118" rx="7" ry="11" fill="url(#sk)"/>
+<ellipse cx="48" cy="119" rx="3" ry="6" fill="${sd}" opacity=".5"/><ellipse cx="152" cy="119" rx="3" ry="6" fill="${sd}" opacity=".5"/>
+<path d="M50 92C50 36 150 36 150 92C150 118 ${100+jw} 134 ${100+jw-4} 156Q${100+jw-8} 186 ${100+cw} 190L${100-cw} 190Q${100-jw+8} 186 ${100-jw+4} 156C${100-jw} 134 50 118 50 92Z" fill="url(#sk)" stroke="${sk}" stroke-width="5" stroke-linejoin="round"/>
+${jaw>45?`<path d="M52 124Q${100-jw} 140 ${100-jw+4} 156L${100-cw} 190M148 124Q${100+jw} 140 ${100+jw-4} 156L${100+cw} 190" stroke="${sd}" stroke-width="3" fill="none" opacity="${jaw/150}"/>`:''}
+${beard}${tufts}${hf}
+<ellipse cx="70" cy="142" rx="9" ry="5" fill="#ff7a9a" opacity=".22"/><ellipse cx="130" cy="142" rx="9" ry="5" fill="#ff7a9a" opacity=".22"/>
+${bags}${b}
+<path d="M${100-nz} 144Q100 150 ${100+nz} 144M99 124L${100-nz*.5} 142" stroke="${sd}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+${eye(80,1)}${eye(120,-1)}
+<path d="M68 ${106-br}L92 ${108-br}M108 ${108-br}L132 ${106-br}" stroke="${bc}" stroke-width="${3+aura*.02}" stroke-linecap="round"/>
+${mouth}${bruise}${stars}${P?'':fxSvg()}</svg>`;
+}
+function face1(){
+  const {skin,jaw,hair,body,aura}=S.st,sc=score();
+  const jw=36+jaw*.14,cw=26-jaw*.1,sw=46+body*.5,hh=hair*.22;
+  const sk=skin>60?'#f7d2ac':'#e6b48c',sd=skin>60?'#dca77f':'#c18f64';
+  const hc=S.bleach?'#e8cf6a':'#3b2a24',hl=S.bleach?'#fff1a0':'#7a5648';
+  const blem=[[80,100],[120,112],[92,135],[115,140],[70,125],[128,95],[100,100],[85,150]];
+  let b='';for(let i=0;i<Math.min(8,Math.floor((100-skin)/12));i++)b+=`<circle cx="${blem[i][0]}" cy="${blem[i][1]}" r="3.2" fill="#d9534f"/>`;
+  const eye=x=>`<g class="eye"><ellipse cx="${x}" cy="120" rx="8" ry="5.5" fill="#fff"/><circle cx="${x}" cy="120" r="4" fill="#5a3b2a"/><circle cx="${x}" cy="120" r="2" fill="#111"/><circle cx="${x+1.5}" cy="118.5" r="1.2" fill="#fff"/></g><path d="M${x-9} 119Q${x} 112 ${x+9} 119" stroke="#2a1747" stroke-width="2" fill="none"/>`;
+  const br=2+aura*.02,my=156+aura*.17;
+  const mouth=(aura>55||S.whiten)?`<path d="M85 164Q100 ${my} 115 164Q100 ${168+aura*.04} 85 164Z" fill="#fff" stroke="#8a3b4a" stroke-width="2.5" stroke-linejoin="round"/>`:`<path d="M84 164Q100 ${my} 116 164" stroke="#8a3b4a" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+  const bruise=S.bruise>0?`<ellipse cx="${100+jw-10}" cy="158" rx="10" ry="7" fill="#6a2c8a" opacity=".6"/><rect x="92" y="176" width="16" height="8" rx="2" fill="#f5f5f5" transform="rotate(-8 100 180)"/>`:'';
+  const beard=S.beard?`<path d="M${100-jw} 138L${100-jw} 152L${100-cw} 190L${100+cw} 190L${100+jw} 152L${100+jw} 138Q100 168 ${100-jw} 138Z" fill="#3b2a24" opacity=".38"/>`:'';
+  const tufts=hair<45?`<path d="M60 70L52 46L72 62L80 38L94 60L108 36L118 60L136 42L140 68Z" fill="${hc}"/>`:'';
+  const bags=skin<40?`<ellipse cx="80" cy="130" rx="9" ry="3.5" fill="#7a5a8a" opacity=".5"/><ellipse cx="120" cy="130" rx="9" ry="3.5" fill="#7a5a8a" opacity=".5"/>`:'';
+  const stars=(aura>70?sp(24,40,9)+sp(172,64,7)+sp(34,100,5):'')+(skin>80?sp(76,142,5)+sp(124,142,5):'');
+  return `<svg viewBox="0 0 200 240" role="img" aria-label="Seu personagem" class="${S.fxNew&&S.warn?'shake':''}">
+<defs><radialGradient id="bg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="${sc>60?'#6d3fa8':'#4a3270'}"/><stop offset="1" stop-color="#241438"/></radialGradient>
+<linearGradient id="sk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${sk}"/><stop offset="1" stop-color="${sd}"/></linearGradient>
+<linearGradient id="hr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hl}"/><stop offset=".6" stop-color="${hc}"/></linearGradient></defs>
+<rect width="200" height="240" fill="url(#bg)"/>
+<circle cx="100" cy="110" r="${50+sc*.6}" fill="#ff5c8a" opacity="${.08+sc/500}"/>
+<circle cx="20" cy="20" r="1.5" fill="#fff" opacity=".5"/><circle cx="175" cy="30" r="1.5" fill="#fff" opacity=".5"/><circle cx="12" cy="150" r="1.5" fill="#fff" opacity=".4"/><circle cx="188" cy="140" r="1.5" fill="#fff" opacity=".4"/>
+<path d="M${100-sw} 240Q${100-sw} 208 70 200L130 200Q${100+sw} 208 ${100+sw} 240Z" fill="${S.fit?'#4df0c0':'#ff5c8a'}"/>
+${S.fit?'<path d="M84 200L100 230L116 200" stroke="#1d1230" stroke-width="3" fill="none"/>':''}
+<rect x="86" y="165" width="28" height="42" fill="url(#sk)"/>
+<ellipse cx="100" cy="190" rx="22" ry="8" fill="#000" opacity=".18"/>
+<ellipse cx="47" cy="118" rx="7" ry="11" fill="url(#sk)"/><ellipse cx="153" cy="118" rx="7" ry="11" fill="url(#sk)"/>
+<ellipse cx="100" cy="78" rx="${52+hair*.06}" ry="${30+hh}" fill="url(#hr)"/>
+<path d="M50 92C50 38 150 38 150 92L${100+jw} 152L${100+cw} 190L${100-cw} 190L${100-jw} 152Z" fill="url(#sk)" stroke="${sk}" stroke-width="6" stroke-linejoin="round"/>
+${jaw>45?`<path d="M52 122L${100-jw} 152L${100-cw} 190M148 122L${100+jw} 152L${100+cw} 190" stroke="${sd}" stroke-width="3" fill="none" opacity="${jaw/150}"/>`:''}
+${beard}${tufts}
+<path d="M48 94Q46 ${66-hh*.6} 100 ${54-hh*.5}Q154 ${66-hh*.6} 152 94Q142 ${82-hair*.14} 100 ${76-hair*.1}Q58 ${82-hair*.14} 48 94Z" fill="url(#hr)"/>
+<path d="M70 ${68-hh*.4}Q100 ${58-hh*.5} 130 ${68-hh*.4}" stroke="${hl}" stroke-width="3" fill="none" opacity=".6"/>
+<ellipse cx="70" cy="142" rx="9" ry="5" fill="#ff7a9a" opacity=".25"/><ellipse cx="130" cy="142" rx="9" ry="5" fill="#ff7a9a" opacity=".25"/>
+${bags}${b}
+<path d="M100 122L96 142Q100 146 104 142" stroke="${sd}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+${eye(80)}${eye(120)}
+<path d="M68 ${106-br}L92 ${108-br}M108 ${108-br}L132 ${106-br}" stroke="${hc}" stroke-width="${3+aura*.02}" stroke-linecap="round"/>
+${mouth}${bruise}${stars}${fxSvg()}</svg>`;
+}
+function faceOld(){
+  const {skin,jaw,hair,body,aura}=S.st;
+  const jw=36+jaw*.14,cw=26-jaw*.1,sw=46+body*.5;
+  const sk=skin>60?'#f6cfa8':'#e8b890';
+  const hc='#3b2a24';
+  const hh=hair*.22;
+  const blem=[[80,100],[120,112],[92,135],[115,140],[70,125],[128,95],[100,118],[85,150]];
+  let b='';
+  for(let i=0;i<Math.min(8,Math.floor((100-skin)/12));i++)b+=`<circle cx="${blem[i][0]}" cy="${blem[i][1]}" r="3.2" fill="#d9534f"/>`;
+  let tufts='';
+  if(hair<45)tufts=`<path d="M60 70 L52 46 L72 62 L80 38 L94 60 L108 36 L118 60 L136 42 L140 68Z" fill="${hc}"/>`;
+  const bags=skin<40?`<ellipse cx="80" cy="130" rx="9" ry="3.5" fill="#7a5a8a" opacity=".5"/><ellipse cx="120" cy="130" rx="9" ry="3.5" fill="#7a5a8a" opacity=".5"/>`:'';
+  const spark=(aura>70?`<text x="14" y="40" font-size="20">✨</text><text x="160" y="60" font-size="16">✨</text>`:'')+(skin>80?`<ellipse cx="78" cy="140" rx="7" ry="3" fill="#fff" opacity=".45"/><ellipse cx="122" cy="140" rx="7" ry="3" fill="#fff" opacity=".45"/>`:'');
+  const mouth=`M84 164 Q100 ${156+aura*.17} 116 164`;
+  const brow=2+aura*.02;
+  return `<svg viewBox="0 0 200 240" role="img" aria-label="Seu personagem">
+  <path d="M${100-sw} 240 Q${100-sw} 205 70 200 L130 200 Q${100+sw} 205 ${100+sw} 240Z" fill="#ff5c8a"/>
+  <rect x="86" y="165" width="28" height="42" fill="${sk}"/>
+  <ellipse cx="100" cy="78" rx="${52+hair*.06}" ry="${30+hh}" fill="${hc}"/>
+  <path d="M50 92 C50 38 150 38 150 92 L${100+jw} 152 L${100+cw} 190 L${100-cw} 190 L${100-jw} 152Z" fill="${sk}" stroke="${sk}" stroke-width="6" stroke-linejoin="round"/>
+  ${tufts}
+  <path d="M48 94 Q46 ${66-hh*.6} 100 ${54-hh*.5} Q154 ${66-hh*.6} 152 94 Q142 ${82-hair*.14} 100 ${76-hair*.1} Q58 ${82-hair*.14} 48 94Z" fill="${hc}"/>
+  ${bags}${b}
+  <circle cx="80" cy="120" r="5" fill="#2a1747"/><circle cx="120" cy="120" r="5" fill="#2a1747"/>
+  <circle cx="82" cy="118" r="1.6" fill="#fff"/><circle cx="122" cy="118" r="1.6" fill="#fff"/>
+  <path d="M68 ${106-brow} L92 ${108-brow}M108 ${108-brow} L132 ${106-brow}" stroke="${hc}" stroke-width="${3+aura*.02}" stroke-linecap="round"/>
+  <path d="${mouth}" stroke="#8a3b4a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  ${spark}</svg>`;
+}
+
+function render(){
+  const s=score();
+  if(S.setup){setupUI();return}
+  if(S.over){
+    const r=rank(s);
+    $('app').innerHTML=`<div class="over"><div><h2>Fim dos ${DAYS} dias</h2><div class="score">${s}</div><div class="rank">${r}</div>
+    <p>Você chegou a <b>${S.fol.toLocaleString('pt-BR')}</b> seguidores.</p>
+    <p>No mundo real, o que mais funciona é sono, pele cuidada, treino e autoconfiança. O resto é conteúdo. 😉</p>
+    <button class="end" onclick="init()">Jogar de novo</button></div></div>`;
+    return;
+  }
+  const bars=Object.keys(NAMES).map(k=>`<div class="bar"><span>${NAMES[k]}</span><i><b style="width:${S.st[k]}%"></b></i></div>`).join('');
+  const list=A.filter(a=>a.c==S.tab).map(a=>{
+    const off=S.en<a.e||S.mo<a.m||(a.once&&S.done[a.id])||(a.ok&&!a.ok());
+    const cost=[a.e?'⚡'+a.e:'⚡0',a.m?'R$'+a.m:''].join(' ');
+    return `<button class="act ${a.c==4?'bad':''}" ${off?'disabled':''} onclick="act('${a.id}')"><span class="ic">${a.i}</span><span class="nm">${a.n}</span><span class="ds">${a.d}</span><span class="cs">${a.once&&S.done[a.id]?'Feito hoje':cost}</span></button>`}).join('');
+  $('app').innerHTML=`
+  <div class="top"><div>${S.day}/${DAYS}<small>Dia</small></div><div>⚡${S.en}<small>Energia</small></div><div>R$${S.mo}<small>Grana</small></div><div>${S.fol.toLocaleString('pt-BR')}<small>Seguidores</small></div></div>
+  <div class="stage">${face()}<div class="right"><div class="score">${s}</div><div class="rank">${rank(s)}</div>${bars}</div></div>
+  <div class="lad">${TIERS.map((t,i)=>`<span class="${i<tier(s)?'ok':i==tier(s)?'now':''}">${t[1]}</span>`).join('')}</div>
+  <div class="toast ${S.warn?'warn':''}">${S.warn?'❌ ':''}${S.msg}</div>
+  <div class="tabs">${TABS.map((t,i)=>`<button class="${i==S.tab?'on':''}" onclick="tab(${i})">${t}</button>`).join('')}</div>
+  <div class="grid">${list}</div>
+  <button class="end" onclick="endDay()">Dormir e postar no TikTok 📱</button>`;
+}
+init();
+</script>
+</body>
+</html>
